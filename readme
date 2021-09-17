@@ -1,0 +1,129 @@
+= 1. Overview =
+
+This package contains a node which does the followings.
+
+* Receives messages from cam2image node
+* Converts them to OpenCV data
+* Sends it to AWS Kinesis Video Stream
+
+
+= 2. Setup =
+
+This section assumes Nvidia Jetson (Ubuntu18.04) and ROS2 Dashing.
+
+== 2.1 Install Boto3 ==
+
+Install [[https://aws.amazon.com/sdk-for-python/?nc1=h_ls | Boto3]].
+
+{{{
+pip install boto3
+}}}
+
+== 2.2 Install CV_Bridge ==
+
+Build and install {{https://index.ros.org/p/cv_bridge/github-ros-perception-vision_opencv/#dashing | CV_Bridge Dashing}} from source code in github.
+
+{{{
+# example
+cd <YOUR_ROS2_WORKSPACE>
+git clone https://github.com/ros-perception/vision_opencv.git
+cd vision_opencv
+git checkout ros2
+colcon build --symlink-install
+}}}
+
+== 2.3 Install GStreamer ==
+
+Install {{https://gstreamer.freedesktop.org/ | GStreamer}}.
+
+== 2.4 Install AWS Kinesis Video Stream Producer SDK ==
+
+Build and install [[https://github.com/awslabs/amazon-kinesis-video-streams-producer-sdk-cpp#readme | Amazon Kinesis Video Streams CPP Producer, GStreamer Plugin and JNI]].
+
+{{{
+# example
+sudo apt-get install libssl-dev libcurl4-openssl-dev liblog4cplus-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools
+git clone https://github.com/awslabs/amazon-kinesis-video-streams-producer-sdk-cpp.git
+mkdir -p amazon-kinesis-video-streams-producer-sdk-cpp/build
+cd amazon-kinesis-video-streams-producer-sdk-cpp/build
+cmake ..
+make
+}}}
+
+== 2.5 Setting AWS Kinesis Video Stream ==
+
+* [[https://docs.aws.amazon.com/kinesisvideostreams/latest/dg/gs-account.html | Step 1: Set Up an AWS Account and Create an Administrator]]
+  * AWS requires your AccessKey and SecretKey.
+* [[https://docs.aws.amazon.com/kinesisvideostreams/latest/dg/gs-createstream.html | Step 2: Create a Kinesis Video Stream]]
+  * Create your video stream using the AWS console or AWS CLI
+
+
+= 3. Install =
+
+Install this package.
+
+{{{
+apt install cam2image_to_kvs
+}}}
+
+
+= 4. How to Use =
+
+== 4.1 Run command ==
+
+{{{
+# example
+ros2 run cam2image_to_kvs cam2image_to_kvs_node \
+-n="my_kinesis_stream" \
+-a="MY_AWS_ACCESS_KEY" \
+-s="MyAwsSecretKey" \
+--width=160 \
+-h=120
+}}}
+
+== 4.2 Arguments ==
+
+* --stream-name, -n (required)
+  * Enter your AWS Kinesis Video Stream name.
+* --accesskey, -a (required)
+  * Enter your AWS AccessKey.
+* --secretkey, -s (required)
+  * Enter your AWS SecretKey.
+* --region, -r (required)
+  * Enter the region where your AWS Kinesis Video Stream is located.
+* --width, -w
+  * Set the width of the video to be sent to AWS Kinesis Video Stream. (Default: 640px)
+* --height, -h
+  * Set the height of the video to be sent to AWS Kinesis Video Stream. (Default: 480px)
+
+{{{
+# Run the node without arguments to see the usage
+ros2 run cam2image_to_kvs cam2image_to_kvs_node
+
+usage: cam2image_to_kvs_node --stream-name STREAM_NAME --accesskey ACCESSKEY
+                             --secretkey SECRETKEY [--region REGION]
+                             [--width WIDTH] [--height HEIGHT]
+cam2image_to_kvs_node: error: the following arguments are required: --stream-name/-n, --accesskey/-a, --secretkey/-s
+}}}
+
+
+= 5. Operation = 
+
+1. Start cam2image node.
+
+{{{
+ros2 run image_tools cam2image
+}}}
+
+2. Run this package
+
+{{{
+ros2 run cam2image_to_kvs cam2image_to_kvs_node \
+-n="my_kinesis_stream" \
+-a="MY_ACCESS_KEY" \
+-s="MySecretKey" \
+}}}
+
+3. Open AWS Kinesis Video Stream console, then select your video stream.
+
+4. Click "Media playback". You'll see the video stream from your camera.

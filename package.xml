@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>cam2image_to_kvs</name>
+  <version>0.1.0</version>
+  <description>Receive Cam2Image topic and send to AWS Kinesis Video Stream.</description>
+  <maintainer email="tokuro_kono@r.recruit.co.jp">Tokuro Kono</maintainer>
+  <license>MIT</license>
+
+  <depend>cv2</depend>
+  <depend>rclpy</depend>
+  <depend>boto3</depend>
+  <depend>sensor_msgs</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
